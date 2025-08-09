@@ -215,32 +215,7 @@ def assemble():
         
     print(instructions)
     create_binary_file()
-
-
-def createMachinecodeFile(instructions):
-    try:
-        fileName= fileNameInputField.get()
-        fileName = str.strip(fileName)
-        if fileName == "": 
-            log_message("Invalid file name.")
-            return
-        with open("empty_program", "r") as source_file:
-            with open(fileName, "w") as target_file:
-                target_file.write(source_file.read())
-        with open(fileName, "r+") as target_file:
-            for address in sorted(instructions.keys()):
-                row = address//16
-                column = address%16
-                offset = 26 + row*87 + 6 + column*5
-                target_file.seek(offset)
-                target_file.write(instructions[address])
-        log_message(f"Machine code sccessfully written to {fileName}.")
-    except FileNotFoundError:
-        log_message("Error: 'empty_program' file not found.")
-    except Exception as e:
-        log_message(f"Error: {str(e)}")
-        
-        
+     
 
 def log_message(message):
     log_field.configure(state="normal")

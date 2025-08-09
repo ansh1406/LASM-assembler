@@ -1,4 +1,4 @@
-*/
+**
 
 !assembler.py
 !core.py
@@ -7,3 +7,4 @@
 !utils.py
 !requirements.txt
 !README.md
+!.gitignore

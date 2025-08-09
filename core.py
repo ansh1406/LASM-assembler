@@ -231,7 +231,10 @@ def handle_instructions(line):
         else:
             instructions[currentRamHead] = opcodes[line[0]]
             currentRamHead += 1
-            instructions[currentRamHead] = "arg:"+line[1]
+            if line[0] in needAddressAsSecondArg:
+                instructions[currentRamHead] = "arg:"+("ADDR-"+line[1][5:]) if line[1][0:4].upper() == "DATA" else line[1]
+            if line[0] in needDataAsSecondArg:
+                instructions[currentRamHead] = "arg:"+line[1]
             currentRamHead += 1
     else:
         instructions[currentRamHead] = opcodes[line[0]]
@@ -240,7 +243,7 @@ def handle_instructions(line):
                 
 def handle_labels(line):
     global currentRamHead, labels
-    label_name = line[0][:-1]
+    label_name = line[0][:-1].upper()
     if label_name in labels:
         log_message(f"Error: Label {label_name} already exists.")
     else:
@@ -274,8 +277,15 @@ def handle_arguments():
                     instructions[instruction] = arg[1].encode("ascii").hex().zfill(4)
             elif arg.upper() in labels:
                 instructions[instruction] = hex(labels[arg.upper()]).replace("0x", "").zfill(4).upper()
+            elif arg.upper().startswith("ADDR-"):
+                instructions[instruction] = hex(dataBlockBaseAddress+int(arg[5:])).replace("0x", "").zfill(4).upper()
+            elif arg.upper().startswith("DATA-"):
+                instructions[instruction] =instructions[dataBlockBaseAddress + int(arg[5:])]
             else:
-                instructions[instruction] = hex(int(arg)).replace("0x", "").zfill(4).upper() if arg[0:4].upper() != "DATA" else hex(dataBlockBaseAddress + int(arg[5:])).replace("0x", "").zfill(4).upper()
+                try:
+                    instructions[instruction] = hex(int(arg)).replace("0x", "").zfill(4).upper()
+                except ValueError:
+                    log_message(f"Error: Invalid argument {arg} for instruction at address {instruction}")
             
             
 def create_binary():
